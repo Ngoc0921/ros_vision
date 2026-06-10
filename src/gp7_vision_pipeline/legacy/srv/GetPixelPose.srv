@@ -1,0 +1,15 @@
+# Service: chuyển pixel (u, v) + depth → PoseStamped trong base_link
+#
+# Thu tu transform:
+#   1. Pixel (u,v) + depth → point camera_optical (pinhole model)
+#   2. camera_optical → camera_link (fixed rotation, 0 translation)
+#   3. camera_link → base_link (ma tran ngoai, static TF)
+#
+# Dung de test PnP hoac goi truc tiep tu DRL node.
+
+bool use_detection_center  # true = dung center cua detection, false = dung (u,v) tu request
+---
+geometry_msgs/PoseStamped pose
+float32 depth_used_m      # do sau thuc te su dung (metres)
+bool success
+string message

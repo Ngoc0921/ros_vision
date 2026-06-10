@@ -1,0 +1,6 @@
+yolo_json_to_box_detection_node:
+  ros__parameters:
+    detections_json_topic: "/vision/yolo/detections_json"
+    depth_topic: "/camera/camera/aligned_depth_to_color/image_raw"
+    target_classes: "target"
+    depth_roi_half_size: 5

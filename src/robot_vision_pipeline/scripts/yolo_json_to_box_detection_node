@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""Entry point for YOLO JSON -> BoxDetection adapter."""
+
+import sys
+
+from robot_vision_pipeline.yolo_json_to_box_detection_node import main
+
+if __name__ == "__main__":
+    sys.exit(main() or 0)

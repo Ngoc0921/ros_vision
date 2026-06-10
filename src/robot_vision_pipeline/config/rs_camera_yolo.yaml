@@ -1,0 +1,19 @@
+# RealSense D435 color-only configuration for YOLO.
+# Use this when only /camera/camera/color/image_raw is needed.
+device_type: d435
+initial_reset: true
+wait_for_device_timeout: 10.0
+reconnect_timeout: 6.0
+
+enable_color: true
+enable_depth: false
+enable_sync: false
+align_depth.enable: false
+pointcloud.enable: false
+enable_infra1: false
+enable_infra2: false
+enable_gyro: false
+enable_accel: false
+enable_rgbd: false
+
+rgb_camera.color_profile: 640x480x15

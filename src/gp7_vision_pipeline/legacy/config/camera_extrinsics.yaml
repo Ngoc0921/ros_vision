@@ -1,0 +1,26 @@
+camera_frame: camera_color_optical_frame
+base_frame: base_link
+units: meters
+intrinsics: {fx: 609.0, fy: 609.0, cx: 424.0, cy: 236.0, _note: Obtained from ros2
+    topic echo /camera/camera/color/camera_info}
+rotation:
+  rows: 3
+  cols: 3
+  data: [-0.9999287900974977, 0.011734736878013687, 0.0021704111495835193, 0.011628585904398036,
+    0.9989749377799347, -0.04374756767455894, -0.002681552538826116, -0.04371921360202931,
+    -0.9990402592678643]
+  _note: "Camera \u2192 base_link rotation (column-major for use with numpy or tf)"
+translation:
+  rows: 3
+  cols: 1
+  data: [0.009487813351605567, -0.4665685168242894, 0.04556678541981146]
+  _note: "Camera \u2192 base_link translation in metres"
+transform:
+  rows: 4
+  cols: 4
+  data: [-0.9999287900974977, 0.011734736878013687, 0.0021704111495835193, 0.009487813351605567,
+    0.011628585904398036, 0.9989749377799347, -0.04374756767455894, -0.4665685168242894,
+    -0.002681552538826116, -0.04371921360202931, -0.9990402592678643, 0.04556678541981146,
+    0.0, 0.0, 0.0, 1.0]
+  _note: "4\xD74 homogeneous transform: base = R @ camera + t"
+diagnostics: {num_points: 19, mean_error_mm: 122.4788, max_error_mm: 195.983, rms_error_mm: 131.3297}

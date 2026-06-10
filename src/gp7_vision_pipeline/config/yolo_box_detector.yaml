@@ -1,0 +1,16 @@
+# YOLO box detector: RealSense color + aligned depth (cached latest depth on color).
+# This workspace uses camera_frame_id:=camera → topics under /camera/camera/...
+
+yolo_box_detector_node:
+  ros__parameters:
+    color_topic: "/camera/camera/color/image_raw"
+    depth_topic: "/camera/camera/aligned_depth_to_color/image_raw"
+    camera_info_topic: "/camera/camera/color/camera_info"
+    sync_queue_size: 10
+    sync_slop: 0.1
+    model_path: "/home/norman/pap_yaskawa_ws/src/gp7_vision_pipeline/model/box_target/weights/best.pt"
+    conf_threshold: 0.8
+    iou_threshold: 0.45
+    device: "cpu"
+    publish_debug_image: true
+    depth_roi_half_size: 5

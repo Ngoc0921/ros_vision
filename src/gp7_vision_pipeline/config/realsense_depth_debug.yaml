@@ -1,0 +1,10 @@
+# Milestone 2 — aligned depth + intrinsics sanity (no YOLO, no box pose output).
+
+realsense_depth_debug:
+  ros__parameters:
+    output_frame_reference: "base_link"
+    rgb_image_topic: "/camera/camera/color/image_raw"
+    depth_image_topic: "/camera/camera/aligned_depth_to_color/image_raw"
+    camera_info_topic: "/camera/camera/color/camera_info"
+    log_period_sec: 2.0
+    warn_no_data_sec: 5.0

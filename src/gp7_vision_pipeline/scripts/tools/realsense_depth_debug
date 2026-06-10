@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""Entry for ``ros2 run gp7_vision_pipeline realsense_depth_debug``."""
+
+import sys
+
+from gp7_vision_pipeline.realsense_depth_debug_node import main
+
+if __name__ == "__main__":
+    main(sys.argv)

@@ -1,0 +1,17 @@
+# vision_detection_marker_node — default parameters
+vision_detection_marker_node:
+  ros__parameters:
+    marker_frame_id: "base_link"
+    marker_publish_rate_hz: 5.0
+
+    # Target marker (blue CYLINDER)
+    target_marker_diameter: 0.04
+    target_marker_height: 0.01
+    target_marker_z_is_bottom: false
+
+    # Staleness timeouts
+    target_detection_timeout_sec: 1.0
+    box_detection_timeout_sec: 1.0
+
+    # Box confidence threshold
+    box_confidence_threshold: 0.5

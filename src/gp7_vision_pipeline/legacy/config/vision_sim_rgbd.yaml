@@ -1,0 +1,14 @@
+# Gazebo Classic ``gp7_sim_rgbd_camera`` — topics are NOT RealSense names.
+#
+# Depth is published as ``depth/image_raw`` (same simulated depth camera as color), not
+# ``aligned_depth_to_color/image_raw``. Optional: ``/gp7_sim/camera/depth/camera_info``,
+# ``/gp7_sim/camera/points``.
+
+realsense_depth_debug:
+  ros__parameters:
+    output_frame_reference: "base_link"
+    rgb_image_topic: "/gp7_sim/camera/color/image_raw"
+    depth_image_topic: "/gp7_sim/camera/depth/image_raw"
+    camera_info_topic: "/gp7_sim/camera/color/camera_info"
+    log_period_sec: 2.0
+    warn_no_data_sec: 8.0

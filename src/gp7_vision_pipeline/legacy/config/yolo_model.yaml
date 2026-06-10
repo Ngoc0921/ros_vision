@@ -1,0 +1,12 @@
+# YOLO inference artifact (Milestone 3+). Not used until a detector node is implemented.
+#
+# Set ``model_path`` to a **single file** (.onnx preferred, else .pt), not the whole
+# training output tree. Override via launch or ``--ros-args -p model_path:=...``.
+
+yolo_detector:
+  ros__parameters:
+    # Default: explicit path under share (install) or source tree; user replaces with real export.
+    model_path: ""
+    # Hint for documentation / future code: prefer onnx > best.pt > last.pt
+    preferred_extensions: [".onnx", ".pt"]
+    class_name_box: "box"

@@ -1,0 +1,20 @@
+# RealSense D435 camera configuration for realsense2_camera/rs_launch.py
+device_type: d435
+initial_reset: true
+wait_for_device_timeout: 10.0
+reconnect_timeout: 6.0
+
+enable_color:       true
+enable_depth:       true
+# Keep sync off while debugging frame timeouts. Enable it again after the
+# camera streams are stable.
+enable_sync:        false
+align_depth.enable: true
+pointcloud.enable:  false # Enable point cloud generation
+enable_infra1:      false
+enable_infra2:      false
+enable_gyro:        false
+enable_accel:       false
+enable_rgbd:        false
+rgb_camera.color_profile: 640x480x15
+depth_module.depth_profile: 640x480x15

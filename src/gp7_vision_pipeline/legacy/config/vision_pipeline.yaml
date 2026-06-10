@@ -1,0 +1,17 @@
+# gp7_vision_pipeline — parameter skeleton for future D435 integration.
+#
+# TODO(Milestone-2+): Fill values after camera is mounted in URDF and RealSense
+# namespace/remaps are fixed.
+
+vision_pipeline_placeholder:
+  ros__parameters:
+    world_frame: "world"
+    base_frame: "base_link"
+    tool_frame: "tool0"
+    camera_link_frame: "camera_link"
+    camera_color_optical_frame: "camera_color_optical_frame"
+    # Eye-to-hand + policy: future box pose/dimensions are expressed in base_link.
+    target_frame: "base_link"
+    rgb_image_topic: "/camera/camera/color/image_raw"
+    depth_image_topic: "/camera/camera/aligned_depth_to_color/image_raw"
+    camera_info_topic: "/camera/camera/color/camera_info"

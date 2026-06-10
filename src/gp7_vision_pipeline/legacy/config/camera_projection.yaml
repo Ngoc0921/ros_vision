@@ -1,0 +1,20 @@
+# Camera intrinsics — Intel RealSense D435 (default values from driver)
+# CameraInfo K matrix:
+#   fx  0   cx
+#   0   fy  cy
+#   0   0   1
+
+camera_projection:
+  ros__parameters:
+    # Depth ROI half-size (pixels) — median filter region around detection center
+    depth_roi_half_size: 5
+
+    # Ma tran ngoai: camera_color_optical_frame → base_link
+    # Doc tu camera_extrinsics.yaml hoac override truc tiep.
+    # TODO: Load tu camera_extrinsics.yaml thay vi nhap truc tiep.
+    extr_tx: 0.0        # metres
+    extr_ty: -0.7       # metres
+    extr_tz: 1.0        # metres
+    extr_roll: 3.141592653589793   # rad — lens down
+    extr_pitch: 0.0                  # rad
+    extr_yaw: 0.0                    # rad

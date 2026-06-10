@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""Entry point for stable YOLO v1 node."""
+
+import sys
+
+from robot_vision_pipeline.yolo.yolo_detect_node_v1 import main
+
+if __name__ == "__main__":
+    sys.exit(main() or 0)

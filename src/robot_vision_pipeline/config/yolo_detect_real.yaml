@@ -1,0 +1,31 @@
+yolo_detect_node:
+  ros__parameters:
+
+    #image_topic: "/camera/color/image_raw"
+    image_topic: "/camera/camera/color/image_raw"
+    camera_info_topic: "/camera/camera/color/camera_info"
+
+    annotated_image_topic: "/vision/yolo/image_annotated"
+
+    detections_topic: "/vision/yolo/detections_json"
+
+    model_path: "/home/minhquang/ros2/src/robot_vision_pipeline/models/best_real.pt"
+    #model_path: "yolov8n.pt"
+
+    # CPU: "cpu"
+    # GPU: "0"
+    device: "cpu"
+
+    conf_threshold: 0.35
+    iou_threshold: 0.45
+    imgsz: 256
+    max_det: 20
+    detect_period_sec: 0.0
+
+    show_gui: false
+    publish_annotated: true
+    image_qos: "reliable"
+
+    class_filter: "wood"
+
+    verbose_log: false

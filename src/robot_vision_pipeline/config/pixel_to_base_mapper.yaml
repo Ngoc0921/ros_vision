@@ -1,0 +1,31 @@
+# pixel_to_base_mapper_node — default parameters
+# Homography calibration, table model, box geometry, robust depth estimation.
+pixel_to_base_mapper_node:
+  ros__parameters:
+    homography_yaml: "config/pixel_to_base_homography.yaml"
+
+    # Target (calibration sticker) geometry — FIXED values from calibration
+    target_height_mm: 10.0
+    target_center_z_base_mm: 55.0
+    target_top_depth_raw_mm: 556.0
+
+    # Table surface model (derived from calibration)
+    table_z_base_mm: 50.0
+    table_depth_raw_mm: 566.0
+
+    # Box detection defaults
+    default_box_height_mm: 10.0
+    min_valid_height_mm: 1.0
+    max_valid_height_mm: 300.0
+
+    # Box size scale factors (tune if intrinsics-based size is biased)
+    box_width_scale: 1.0
+    box_length_scale: 1.0
+
+    # Robust depth estimation (5×5 window, outlier filtering)
+    # See README §7 "Robust depth estimation" for algorithm details.
+    box_center_depth_window_radius: 2
+    box_min_valid_depth_m: 0.1
+    box_max_valid_depth_m: 2.0
+    box_depth_outlier_threshold_m: 0.02
+    box_min_valid_depth_samples: 5

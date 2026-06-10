@@ -1,0 +1,15 @@
+aruco_detect_node:
+  ros__parameters:
+    image_topic: "/camera/camera/color/image_raw"
+    camera_info_topic: "/camera/camera/color/camera_info"
+
+    #image_topic: "/webcam/image_raw"
+    #camera_info_topic: "/webcam/camera_info"
+
+    camera_frame: "astra_optical"
+
+    dictionary: "DICT_4X4_50"
+    marker_size: 0.028
+
+    enable_pose: true
+    draw_debug: true

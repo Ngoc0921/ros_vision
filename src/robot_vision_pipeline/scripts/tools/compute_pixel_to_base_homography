@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""Entry point for pixel-to-base homography calibration."""
+
+import sys
+
+from robot_vision_pipeline.compute_pixel_to_base_homography import main
+
+if __name__ == "__main__":
+    main(sys.argv)
