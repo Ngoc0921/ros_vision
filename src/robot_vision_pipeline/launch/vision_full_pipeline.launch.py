@@ -46,10 +46,10 @@ def generate_launch_description():
 
     yolo_node = Node(
         package="robot_vision_pipeline",
-        executable="yolo_detect_node_v1",
+        executable="yolo_detect_node",
         name="yolo_detect_node",
         output="screen",
-        prefix="/home/minhquang/venvs/ros_yolo/bin/python3",
+       # prefix="/home/minhquang/venvs/ros_yolo/bin/python3",
         parameters=[
             yolo_param_file,
             {

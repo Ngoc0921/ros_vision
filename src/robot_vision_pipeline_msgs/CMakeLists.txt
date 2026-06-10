@@ -9,7 +9,11 @@ find_package(geometry_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ArucoPose.msg"
   "msg/ArucoPoseArray.msg"
+  "msg/Object.msg"
+  "msg/ObjectDetection.msg"
   DEPENDENCIES std_msgs geometry_msgs
 )
+
+ament_export_dependencies(rosidl_default_runtime)
 
 ament_package()

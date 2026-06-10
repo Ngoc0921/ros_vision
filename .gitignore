@@ -1,0 +1,23 @@
+# ===== ROS2 workspace build artifacts =====
+build/
+install/
+log/
+
+# ===== Colcon / CMake temp =====
+**/.cmake/
+**/CMakeFiles/
+**/CMakeConfigureLog.yaml
+**/colcon_command_prefix_build.sh.env
+**/install_manifest.txt
+
+# ===== Python cache =====
+__pycache__/
+*.pyc
+
+# ===== IDE =====
+.vscode/
+*.swp
+
+# ===== Misc =====
+*.log
+

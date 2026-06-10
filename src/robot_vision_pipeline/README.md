@@ -6,32 +6,89 @@ Robot vision pipeline using YOLO for real-time object detection and ArUco marker
 
 ```
 robot_vision_pipeline/
-├── robot_vision_pipeline/
-│   ├── aruco/                   # ArUco detection module
-│   ├── vision_gui/              # Vision GUI module
-│   └── yolo/                    # YOLO detection module
-├── scripts/
-│   ├── yolo_detect_node         # YOLO detection executable
-│   ├── aruco_detect_node         # ArUco detection executable
-│   ├── vision_gui               # Qt vision GUI executable
-│   └── vision_gui_astra         # Astra camera vision GUI
-├── launch/
-│   ├── yolo_detect_real.launch.py
-│   ├── yolo_detect_sim.launch.py
-│   └── aruco_detect.launch.py
+├── CMakeLists.txt                         # ament_cmake build, ROS 2 msg generation, install rules
+├── package.xml                            # ROS 2 package manifest and dependencies
+├── setup.py                               # Python package metadata and console entry points
+├── setup.cfg                              # Python install/script configuration
+├── README.md                              # Current package documentation
+├── README_old.md                          # Legacy package documentation
+├── resource/
+│   └── robot_vision_pipeline              # ament resource marker
 ├── config/
-│   ├── rs_camera.yaml           # RealSense config (depth + aligned depth)
-│   ├── rs_camera_yolo.yaml      # RealSense config (color only, for YOLO)
-│   ├── yolo_detect_real.yaml     # YOLO parameters
-│   └── aruco_detect.yaml        # ArUco parameters
+│   ├── aruco_detect.yaml                  # ArUco detector parameters
+│   ├── pixel_to_base_homography.yaml      # Saved pixel-to-base homography matrix/config
+│   ├── pixel_to_base_mapper.yaml          # Pixel-to-base mapper node parameters
+│   ├── rs_camera.yaml                     # RealSense config with depth/aligned depth
+│   ├── rs_camera_yolo.yaml                # RealSense color-only config for YOLO
+│   ├── vision_markers.yaml                # RViz/marker visualization parameters
+│   ├── yolo_detect_real.yaml              # Real-camera YOLO parameters
+│   └── yolo_json_adapter.yaml             # YOLO JSON-to-message adapter parameters
+├── launch/
+│   ├── aruco_detect.launch.py             # ArUco detection launch file
+│   ├── vision_full_pipeline.launch.py     # Full vision pipeline launch file
+│   ├── yolo_detect_real.launch.py         # Real-camera YOLO launch file
+│   └── yolo_detect_sim.launch.py          # Simulation YOLO launch file
 ├── models/
-│   └── best_real.pt             # Trained YOLO model
+│   ├── best_real.pt                       # YOLO model for real setup
+│   ├── hbb.pt                             # YOLO model variant
+│   ├── obb_v3.pt                          # Oriented bounding box model variant
+│   ├── sim.pt                             # YOLO model for simulation
+│   ├── tray.pt                            # Tray detection model
+│   └── wood.pt                            # Wood detection model
 ├── msg/
-│   ├── ArucoPose.msg
-│   └── ArucoPoseArray.msg
-├── test/
-├── CMakeLists.txt
-└── package.xml
+│   ├── ArucoPose.msg                      # Single ArUco pose message
+│   ├── ArucoPoseArray.msg                 # Array of ArUco pose messages
+│   ├── Box.msg                            # Single detected box message
+│   └── BoxDetection.msg                   # Box detection batch/result message
+├── robot_vision_pipeline/
+│   ├── __init__.py
+│   ├── compute_pixel_to_base_homography.py # Homography calibration helper
+│   ├── depth_utils.py                     # Shared depth/deprojection utilities
+│   ├── detection_visualizer.py            # Detection overlay/visualization helpers
+│   ├── pixel_to_base_mapper_node.py       # Converts image detections to base-frame targets
+│   ├── realsense_depth_debug_node.py      # RealSense depth debug node
+│   ├── test_pixel_to_base_homography.py   # Homography test/helper node
+│   ├── vision_detection_marker_node.py    # Publishes visualization markers for detections
+│   ├── yolo_json_to_box_detection_node.py # Converts YOLO JSON output to BoxDetection messages
+│   ├── aruco/
+│   │   ├── __init__.py
+│   │   ├── aruco_calib_size_check.py      # ArUco calibration size checker
+│   │   ├── aruco_detect_node.py           # ArUco detector node
+│   │   ├── aruco_distance.py              # ArUco distance utility
+│   │   ├── aruco_pose_node.py             # ArUco pose estimation node
+│   │   └── aruco_size_check.py            # ArUco marker size checker
+│   ├── depth/
+│   │   └── __init__.py                    # Depth subpackage placeholder
+│   ├── pose_estimation/
+│   │   ├── __init__.py
+│   │   ├── pick_pose_estimator_node.py    # Pick-pose estimation node
+│   │   ├── target_filter_node.py          # Target filtering node
+│   │   └── tf_utils.py                    # TF transform helpers
+│   ├── vision_gui/
+│   │   ├── __init__.py
+│   │   ├── README.md                      # GUI-specific notes
+│   │   ├── vision_gui_astra.py            # Astra camera GUI
+│   │   └── vision_gui_main.py             # Main Qt vision GUI
+│   └── yolo/
+│       ├── __init__.py
+│       ├── yolo_detect_node.py            # Main YOLO detector node
+│       ├── yolo_detect_node_v1.py         # Legacy/alternate YOLO detector node
+│       └── yolo_utils.py                  # YOLO helper functions
+├── scripts/
+│   ├── aruco_detect_node                  # Executable wrapper
+│   ├── pixel_to_base_mapper_node          # Executable wrapper
+│   ├── realsense_depth_debug              # Executable wrapper
+│   ├── vision_detection_marker_node       # Executable wrapper
+│   ├── vision_gui                         # Executable wrapper
+│   ├── vision_gui_astra                   # Executable wrapper
+│   ├── vision_gui_launcher.py             # GUI launcher helper
+│   ├── yolo_detect_node                   # Executable wrapper
+│   ├── yolo_detect_node_v1                # Executable wrapper
+│   ├── yolo_json_to_box_detection_node    # Executable wrapper
+│   └── tools/
+│       ├── compute_pixel_to_base_homography # Homography tool wrapper
+│       └── test_pixel_to_base_homography    # Homography test tool wrapper
+└── test/                                  # Package tests
 ```
 
 ## Build

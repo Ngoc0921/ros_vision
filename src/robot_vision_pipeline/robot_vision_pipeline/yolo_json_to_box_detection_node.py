@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Adapt YOLO JSON detections into BoxDetection topics.
+"""Adapt YOLO JSON detections into ObjectDetection topics.
 
 This keeps yolo_detect_node_v1.py unchanged. The stable YOLO node publishes
 std_msgs/String JSON on /vision/yolo/detections_json; this adapter converts each
-detection into robot_vision_pipeline/BoxDetection messages for the GP7-style
+detection into robot_vision_pipeline_msgs/ObjectDetection messages for the GP7-style
 mapping layer.
 """
 
@@ -22,7 +22,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Header, String
 
 from robot_vision_pipeline.depth_utils import depth_at_pixel, median_depth_meters
-from robot_vision_pipeline.msg import BoxDetection
+from robot_vision_pipeline_msgs.msg import ObjectDetection
 
 
 class YoloJsonToBoxDetectionNode(Node):
@@ -48,8 +48,8 @@ class YoloJsonToBoxDetectionNode(Node):
         }
         self._depth_roi_half_size = int(self.get_parameter("depth_roi_half_size").value)
 
-        self._pub_target = self.create_publisher(BoxDetection, "/vision/target_detection", 10)
-        self._pub_box = self.create_publisher(BoxDetection, "/vision/box_detection", 10)
+        self._pub_target = self.create_publisher(ObjectDetection, "/vision/target_detection", 10)
+        self._pub_box = self.create_publisher(ObjectDetection, "/vision/box_detection", 10)
 
         self.create_subscription(
             String,
@@ -145,6 +145,7 @@ class YoloJsonToBoxDetectionNode(Node):
         for det_data in detections:
             try:
                 class_name = str(det_data.get("class_name", "")).strip()
+                object_id = int(det_data.get("id", 0))
                 confidence = float(det_data.get("confidence", 0.0))
                 bbox = det_data.get("bbox_xyxy", {})
                 xywh = det_data.get("bbox_xywh", {})
@@ -166,10 +167,11 @@ class YoloJsonToBoxDetectionNode(Node):
                 center_x, center_y
             )
 
-            det = BoxDetection()
+            det = ObjectDetection()
             det.header = header
             det.class_name = class_name
             det.confidence = confidence
+            det.object_id = object_id
             det.x_min = x_min
             det.y_min = y_min
             det.x_max = x_max

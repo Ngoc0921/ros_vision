@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Entry point for YOLO JSON -> BoxDetection adapter."""
+"""Entry point for YOLO JSON -> ObjectDetection adapter."""
 
 import sys
 

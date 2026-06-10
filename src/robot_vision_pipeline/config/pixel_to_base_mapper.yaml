@@ -29,3 +29,16 @@ pixel_to_base_mapper_node:
     box_max_valid_depth_m: 2.0
     box_depth_outlier_threshold_m: 0.02
     box_min_valid_depth_samples: 5
+
+    # Post-YOLO ROI refinement from gui_pick_and_place.py:
+    # use YOLO bbox as ROI, segment low-saturation object pixels, morphology,
+    # then compute refined center + yaw from the largest contour/minAreaRect.
+    enable_roi_refinement: true
+    use_refined_center: true
+    use_refined_yaw_orientation: true
+    roi_mask_shrink: 0.92
+    roi_morph_kernel: 5
+    roi_min_contour_area: 300.0
+    roi_hsv_s_max: 80
+    roi_hsv_v_min: 35
+    roi_hsv_v_max: 245

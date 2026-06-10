@@ -66,7 +66,7 @@ def generate_launch_description():
         name="yolo_detect_node",
         output="screen",
         # Ép node chạy bằng Python trong venv ros_env
-        prefix="/home/minhquang/venvs/ros_yolo/bin/python3",
+        #prefix="/home/minhquang/venvs/ros_yolo/bin/python3",
         parameters=[
             LaunchConfiguration("param_file"),
             {

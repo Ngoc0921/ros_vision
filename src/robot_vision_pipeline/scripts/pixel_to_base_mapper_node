@@ -3,7 +3,7 @@
 
 import sys
 
-from robot_vision_pipeline.pixel_to_base_mapper_node import main
+from robot_vision_pipeline.pose_estimation.pixel_to_base_mapper_node import main
 
 if __name__ == "__main__":
     sys.exit(main() or 0)

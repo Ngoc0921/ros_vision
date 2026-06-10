@@ -9,7 +9,7 @@ yolo_detect_node:
 
     detections_topic: "/vision/yolo/detections_json"
 
-    model_path: "/home/minhquang/ros2/src/robot_vision_pipeline/models/best_real.pt"
+    model_path: "/home/asus/ros_vision/src/robot_vision_pipeline/models/best_real.pt"
     #model_path: "yolov8n.pt"
 
     # CPU: "cpu"

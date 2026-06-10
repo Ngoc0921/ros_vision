@@ -27,7 +27,7 @@ from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
 from std_msgs.msg import Bool, String
 from visualization_msgs.msg import Marker, MarkerArray
 
-from robot_vision_pipeline.msg import Box
+from robot_vision_pipeline_msgs.msg import Object
 
 
 class VisionDetectionMarkerNode(Node):
@@ -68,7 +68,7 @@ class VisionDetectionMarkerNode(Node):
         self._target_pos: Optional[PointStamped] = None
         self._last_target_msg_time: Optional[float] = None
         self._box_detected: bool = False
-        self._box: Optional[Box] = None
+        self._box: Optional[Object] = None
         self._last_box_msg_time: Optional[float] = None
         self._box_confidence: float = 0.0
 
@@ -99,7 +99,7 @@ class VisionDetectionMarkerNode(Node):
             10,
         )
         self.create_subscription(
-            Box,
+            Object,
             "/vision/box",
             self._on_box,
             10,
@@ -141,7 +141,7 @@ class VisionDetectionMarkerNode(Node):
         elif not msg.data and was_detected:
             self.get_logger().warn("Target lost / not detected")
 
-    def _on_box(self, msg: Box) -> None:
+    def _on_box(self, msg: Object) -> None:
         confidence = float(getattr(msg, "confidence", 0.0))
         if confidence < self._box_conf_thresh:
             with self._lock:
@@ -217,7 +217,7 @@ class VisionDetectionMarkerNode(Node):
         target_active: bool,
         target_pos: Optional[PointStamped],
         box_active: bool,
-        box: Optional[Box],
+        box: Optional[Object],
     ) -> None:
         now = self.get_clock().now().to_msg()
         markers: list[Marker] = []
