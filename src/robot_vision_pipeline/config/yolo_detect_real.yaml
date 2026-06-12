@@ -29,3 +29,13 @@ yolo_detect_node:
     class_filter: "wood"
 
     verbose_log: false
+
+    # ROI crop: crop a sub-region before YOLO inference.
+    # Coordinates are in the full image pixel space.
+    # Bounding boxes in the output JSON are always in full-image coordinates.
+    enable_roi_crop: true
+    roi_x: 100
+    roi_y: 80
+    roi_width: 440
+    roi_height: 320
+    publish_roi_debug_image: true

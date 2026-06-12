@@ -49,7 +49,7 @@ class YoloJsonToBoxDetectionNode(Node):
         self._depth_roi_half_size = int(self.get_parameter("depth_roi_half_size").value)
 
         self._pub_target = self.create_publisher(ObjectDetection, "/vision/target_detection", 10)
-        self._pub_box = self.create_publisher(ObjectDetection, "/vision/box_detection", 10)
+        self._pub_wood = self.create_publisher(ObjectDetection, "/vision/wood_detection", 10)
 
         self.create_subscription(
             String,
@@ -188,7 +188,7 @@ class YoloJsonToBoxDetectionNode(Node):
             if class_name.lower() in self._target_classes:
                 self._pub_target.publish(det)
             else:
-                self._pub_box.publish(det)
+                self._pub_wood.publish(det)
 
 
 def main(args: list[str] | None = None) -> None:

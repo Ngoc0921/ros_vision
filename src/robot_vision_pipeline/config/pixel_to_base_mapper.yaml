@@ -1,36 +1,27 @@
 # pixel_to_base_mapper_node — default parameters
-# Homography calibration, table model, box geometry, robust depth estimation.
 pixel_to_base_mapper_node:
   ros__parameters:
-    homography_yaml: "config/pixel_to_base_homography.yaml"
 
-    # Target (calibration sticker) geometry — FIXED values from calibration
-    target_height_mm: 10.0
-    target_center_z_base_mm: 55.0
-    target_top_depth_raw_mm: 556.0
+    # Camera topics
+    camera_info_topic: "/camera/camera/color/camera_info"
+    depth_topic: "/camera/camera/aligned_depth_to_color/image_raw"
+    base_debug_image_input_topic: "/camera/camera/color/image_raw"
 
-    # Table surface model (derived from calibration)
-    table_z_base_mm: 50.0
-    table_depth_raw_mm: 566.0
+    # Target depth from aligned depth camera (robust median window)
+    target_depth_window_radius: 3
+    target_min_depth_m: 0.05
+    target_max_depth_m: 3.0
+    target_depth_outlier_threshold_m: 0.02
+    target_min_depth_samples: 3
 
-    # Box detection defaults
-    default_box_height_mm: 10.0
-    min_valid_height_mm: 1.0
-    max_valid_height_mm: 300.0
+    # Wood Z/depth from aligned depth camera (robust median window)
+    wood_depth_window_radius: 2
+    wood_min_depth_m: 0.1
+    wood_max_depth_m: 2.0
+    wood_depth_outlier_threshold_m: 0.02
+    wood_min_depth_samples: 5
 
-    # Box size scale factors (tune if intrinsics-based size is biased)
-    box_width_scale: 1.0
-    box_length_scale: 1.0
-
-    # Robust depth estimation (5×5 window, outlier filtering)
-    # See README §7 "Robust depth estimation" for algorithm details.
-    box_center_depth_window_radius: 2
-    box_min_valid_depth_m: 0.1
-    box_max_valid_depth_m: 2.0
-    box_depth_outlier_threshold_m: 0.02
-    box_min_valid_depth_samples: 5
-
-    # Post-YOLO ROI refinement from gui_pick_and_place.py:
+    # Post-YOLO ROI refinement (HSV segmentation on color image):
     # use YOLO bbox as ROI, segment low-saturation object pixels, morphology,
     # then compute refined center + yaw from the largest contour/minAreaRect.
     enable_roi_refinement: true
@@ -42,3 +33,7 @@ pixel_to_base_mapper_node:
     roi_hsv_s_max: 80
     roi_hsv_v_min: 35
     roi_hsv_v_max: 245
+
+    # Debug image and stale status.
+    overlay_timeout_sec: 1.0
+    stale_timeout_sec: 2.0

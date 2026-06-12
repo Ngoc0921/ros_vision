@@ -2,7 +2,7 @@
 
 import json
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 import os
 import threading
 
@@ -53,6 +53,14 @@ class YoloDetectNode(Node):
         self.declare_parameter("model_path_override", "")
         self.declare_parameter("image_topic_override", "")
 
+        # ROI crop parameters
+        self.declare_parameter("enable_roi_crop", True)
+        self.declare_parameter("roi_x", 100)
+        self.declare_parameter("roi_y", 80)
+        self.declare_parameter("roi_width", 440)
+        self.declare_parameter("roi_height", 320)
+        self.declare_parameter("publish_roi_debug_image", True)
+
         # =========================
         # Get parameters
         # =========================
@@ -90,6 +98,16 @@ class YoloDetectNode(Node):
                 x.strip() for x in class_filter_param.split(",") if x.strip()
             )
 
+        # ROI parameters
+        self.enable_roi_crop = bool(self.get_parameter("enable_roi_crop").value)
+        self.roi_x = int(self.get_parameter("roi_x").value)
+        self.roi_y = int(self.get_parameter("roi_y").value)
+        self.roi_width = int(self.get_parameter("roi_width").value)
+        self.roi_height = int(self.get_parameter("roi_height").value)
+        self.publish_roi_debug_image = bool(
+            self.get_parameter("publish_roi_debug_image").value
+        )
+
         self.bridge = CvBridge()
         self.model = None
         self.names = {}
@@ -105,6 +123,11 @@ class YoloDetectNode(Node):
         self.latest_frame_seq = 0
         self.processed_frame_seq = -1
         self.total_rx_frames = 0
+
+        # ROI state (updated each frame after validation against image size)
+        self._current_roi_valid = False
+        self._current_roi: Optional[Tuple[int, int, int, int]] = None
+        self._roi_logged_warning = False
 
         self.last_detect_time = 0.0
         self.is_detecting = False
@@ -184,6 +207,14 @@ class YoloDetectNode(Node):
             10,
         )
 
+        self.roi_debug_pub = None
+        if self.publish_roi_debug_image:
+            self.roi_debug_pub = self.create_publisher(
+                Image,
+                "/vision/yolo/roi_debug_image",
+                10,
+            )
+
         self.status_timer = self.create_timer(5.0, self.status_timer_callback)
         self.detect_thread = threading.Thread(target=self.detect_worker, daemon=True)
         self.detect_thread.start()
@@ -208,7 +239,56 @@ class YoloDetectNode(Node):
         self.get_logger().info(f"Publish annotated     : {self.publish_annotated}")
         self.get_logger().info(f"Show GUI              : {self.show_gui}")
         self.get_logger().info(f"Class filter          : {list(self.class_filter)}")
+        self.get_logger().info(
+            f"ROI crop enabled      : {self.enable_roi_crop}"
+        )
+        if self.enable_roi_crop:
+            self.get_logger().info(
+                f"ROI params            : x={self.roi_x}, y={self.roi_y}, "
+                f"w={self.roi_width}, h={self.roi_height}"
+            )
+        self.get_logger().info(f"ROI debug image       : {self.publish_roi_debug_image}")
         self.get_logger().info("========================================")
+
+    # ============================================================
+    # ROI clamp and validate
+    # ============================================================
+    def _clamp_roi(
+        self,
+        roi_x: int,
+        roi_y: int,
+        roi_w: int,
+        roi_h: int,
+        img_w: int,
+        img_h: int,
+    ) -> Tuple[int, int, int, int, bool]:
+        """Clamp ROI to image bounds.
+
+        Returns:
+            (clamped_x, clamped_y, clamped_w, clamped_h, is_valid)
+            is_valid is True only when w > 0 and h > 0 after clamping.
+        """
+        x = max(0, int(roi_x))
+        y = max(0, int(roi_y))
+        w = max(0, int(roi_w))
+        h = max(0, int(roi_h))
+
+        x = min(x, img_w)
+        y = min(y, img_h)
+
+        w = min(w, img_w - x)
+        h = min(h, img_h - y)
+
+        is_valid = w > 0 and h > 0
+
+        if not is_valid and not self._roi_logged_warning:
+            self.get_logger().warn(
+                f"ROI is invalid after clamping (w={w}, h={h}). "
+                "Crop will be skipped; using full image."
+            )
+            self._roi_logged_warning = True
+
+        return x, y, w, h, is_valid
 
     # ============================================================
     # Camera callback:
@@ -227,6 +307,24 @@ class YoloDetectNode(Node):
             self.get_logger().warn("Received empty image.")
             return
 
+        img_h, img_w = frame_bgr.shape[:2]
+
+        # Validate and clamp ROI against this frame's size
+        if self.enable_roi_crop:
+            rx, ry, rw, rh, valid = self._clamp_roi(
+                self.roi_x,
+                self.roi_y,
+                self.roi_width,
+                self.roi_height,
+                img_w,
+                img_h,
+            )
+            self._current_roi = (rx, ry, rw, rh) if valid else None
+            self._current_roi_valid = valid
+        else:
+            self._current_roi = None
+            self._current_roi_valid = False
+
         with self.frame_lock:
             self.latest_frame = frame_bgr.copy()
             self.latest_header = msg.header
@@ -238,7 +336,6 @@ class YoloDetectNode(Node):
         self.update_preview_fps()
 
         if self.show_gui:
-            # GUI hiển thị kết quả detect gần nhất. Nếu chưa có kết quả thì hiển thị frame live.
             if self.last_result_image is not None:
                 display = self.last_result_image.copy()
             else:
@@ -251,7 +348,9 @@ class YoloDetectNode(Node):
             if key == ord("q"):
                 cv2.destroyWindow(self.window_name)
                 self.show_gui = False
-                self.get_logger().info("GUI closed. Press Ctrl+C in terminal to stop node.")
+                self.get_logger().info(
+                    "GUI closed. Press Ctrl+C in terminal to stop node."
+                )
 
         if self.verbose_log:
             self.get_logger().info(f"Received frame seq={current_seq}")
@@ -279,6 +378,7 @@ class YoloDetectNode(Node):
 
                 frame_bgr = self.latest_frame.copy()
                 header = self.latest_header
+                roi = self._current_roi
 
             if self.detect_period_sec > 0.0:
                 now = time.time()
@@ -289,18 +389,29 @@ class YoloDetectNode(Node):
 
             self.processed_frame_seq = frame_seq
             self.last_detect_time = time.time()
-            self.run_detect_once(frame_bgr, header)
+            self.run_detect_once(frame_bgr, header, roi)
 
     # ============================================================
     # Run YOLO once
     # ============================================================
-    def run_detect_once(self, frame_bgr, header):
+    def run_detect_once(self, frame_bgr, header, roi: Optional[Tuple[int, int, int, int]]):
         self.is_detecting = True
         start = time.time()
 
         try:
+            # --- Step 1: ROI crop ---
+            if self.enable_roi_crop and roi is not None:
+                roi_x, roi_y, roi_w, roi_h = roi
+                roi_image = frame_bgr[roi_y : roi_y + roi_h, roi_x : roi_x + roi_w]
+                full_h, full_w = frame_bgr.shape[:2]
+            else:
+                roi_image = frame_bgr
+                roi_x, roi_y, roi_w, roi_h = 0, 0, 0, 0
+                full_h, full_w = frame_bgr.shape[:2]
+
+            # --- Step 2: YOLO inference on ROI (or full image) ---
             result = self.model.predict(
-                source=frame_bgr,
+                source=roi_image,
                 conf=self.conf_threshold,
                 iou=self.iou_threshold,
                 imgsz=self.imgsz,
@@ -312,16 +423,48 @@ class YoloDetectNode(Node):
             inference_ms = (time.time() - start) * 1000.0
             self.update_detect_fps()
 
-            detections = self.parse_yolo_result(result)
+            detections = self.parse_yolo_result(result, roi_x, roi_y)
 
             mode_name = "realtime" if self.detect_period_sec <= 0.0 else "throttled"
 
-            # Ảnh đã vẽ bbox từ YOLO
-            annotated = result.plot()
+            # --- Step 3: Build annotated image on full image ---
+            annotated_full = frame_bgr.copy()
 
-            # Vẽ thông tin detection
+            # Draw ROI rectangle on full image
+            if self.enable_roi_crop and roi is not None:
+                cv2.rectangle(
+                    annotated_full,
+                    (roi_x, roi_y),
+                    (roi_x + roi_w, roi_y + roi_h),
+                    (0, 255, 0),
+                    2,
+                )
+                roi_label = (
+                    f"ROI [{roi_x},{roi_y},{roi_w},{roi_h}]"
+                )
+                cv2.putText(
+                    annotated_full,
+                    roi_label,
+                    (roi_x + 4, roi_y + 18),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.55,
+                    (0, 255, 0),
+                    1,
+                    cv2.LINE_AA,
+                )
+
+            # Draw YOLO bboxes (already in full-image coordinates from parse_yolo_result)
+            annotated_with_boxes = result.plot()
+            if self.enable_roi_crop and roi is not None:
+                annotated_full[roi_y : roi_y + roi_h, roi_x : roi_x + roi_w] = (
+                    annotated_with_boxes
+                )
+            else:
+                annotated_full = annotated_with_boxes
+
+            # Draw detection info bar
             cv2.putText(
-                annotated,
+                annotated_full,
                 (
                     f"YOLO {mode_name} | Objects: {len(detections)} | "
                     f"infer: {inference_ms:.1f} ms | count: {self.detect_count + 1}"
@@ -334,19 +477,27 @@ class YoloDetectNode(Node):
                 cv2.LINE_AA,
             )
 
+            # --- Step 4: Publish annotated image ---
             if self.publish_annotated:
-                annotated_msg = self.bridge.cv2_to_imgmsg(annotated, encoding="bgr8")
+                annotated_msg = self.bridge.cv2_to_imgmsg(annotated_full, encoding="bgr8")
                 annotated_msg.header = header
                 self.annotated_pub.publish(annotated_msg)
 
+            # --- Step 5: Publish ROI debug image ---
+            if self.publish_roi_debug_image and self.roi_debug_pub is not None:
+                roi_debug_msg = self.bridge.cv2_to_imgmsg(roi_image, encoding="bgr8")
+                roi_debug_msg.header = header
+                self.roi_debug_pub.publish(roi_debug_msg)
+
+            # --- Step 6: Build and publish JSON payload ---
             payload = {
                 "stamp": {
                     "sec": int(header.stamp.sec),
                     "nanosec": int(header.stamp.nanosec),
                 },
                 "frame_id": header.frame_id,
-                "image_width": int(frame_bgr.shape[1]),
-                "image_height": int(frame_bgr.shape[0]),
+                "image_width": int(full_w),
+                "image_height": int(full_h),
                 "mode": mode_name,
                 "detect_period_sec": float(self.detect_period_sec),
                 "rx_frames": int(self.total_rx_frames),
@@ -356,6 +507,11 @@ class YoloDetectNode(Node):
                 "inference_time_ms": float(inference_ms),
                 "num_detections": len(detections),
                 "detections": detections,
+                "roi_enabled": bool(self.enable_roi_crop and roi is not None),
+                "roi_x": int(roi_x),
+                "roi_y": int(roi_y),
+                "roi_width": int(roi_w),
+                "roi_height": int(roi_h),
             }
 
             json_msg = String()
@@ -366,11 +522,12 @@ class YoloDetectNode(Node):
                 self.get_logger().info(json_msg.data)
 
             self.detect_count += 1
-            self.last_result_image = annotated.copy()
+            self.last_result_image = annotated_full.copy()
             self.last_payload = payload
 
             self.get_logger().info(
-                f"Detect #{self.detect_count}: {len(detections)} object(s), inference={inference_ms:.1f} ms"
+                f"Detect #{self.detect_count}: {len(detections)} object(s), "
+                f"inference={inference_ms:.1f} ms"
             )
 
         except Exception as e:
@@ -380,9 +537,11 @@ class YoloDetectNode(Node):
             self.is_detecting = False
 
     # ============================================================
-    # Parse YOLO result
+    # Parse YOLO result and offset bbox to full image coordinates
     # ============================================================
-    def parse_yolo_result(self, result: Any) -> List[Dict[str, Any]]:
+    def parse_yolo_result(
+        self, result: Any, roi_x: int, roi_y: int
+    ) -> List[Dict[str, Any]]:
         detections: List[Dict[str, Any]] = []
 
         if result.boxes is None:
@@ -392,23 +551,28 @@ class YoloDetectNode(Node):
 
         for i in range(len(boxes)):
             try:
-                xyxy = boxes.xyxy[i].detach().cpu().numpy().astype(float)
+                xyxy_roi = boxes.xyxy[i].detach().cpu().numpy().astype(float)
                 conf = float(boxes.conf[i].detach().cpu().numpy())
                 cls_id = int(boxes.cls[i].detach().cpu().numpy())
 
                 class_name = self.get_class_name(cls_id)
 
-                # Nếu có class_filter thì chỉ lấy class nằm trong filter
                 if len(self.class_filter) > 0:
                     if class_name not in self.class_filter:
                         continue
 
-                x1, y1, x2, y2 = xyxy.tolist()
+                # Convert ROI coordinates back to full-image coordinates
+                x1_roi, y1_roi, x2_roi, y2_roi = xyxy_roi.tolist()
 
-                cx = 0.5 * (x1 + x2)
-                cy = 0.5 * (y1 + y2)
-                w = x2 - x1
-                h = y2 - y1
+                x1_full = x1_roi + float(roi_x)
+                y1_full = y1_roi + float(roi_y)
+                x2_full = x2_roi + float(roi_x)
+                y2_full = y2_roi + float(roi_y)
+
+                cx_full = 0.5 * (x1_full + x2_full)
+                cy_full = 0.5 * (y1_full + y2_full)
+                w_full = x2_full - x1_full
+                h_full = y2_full - y1_full
 
                 det = {
                     "id": len(detections),
@@ -416,16 +580,16 @@ class YoloDetectNode(Node):
                     "class_name": class_name,
                     "confidence": conf,
                     "bbox_xyxy": {
-                        "x1": x1,
-                        "y1": y1,
-                        "x2": x2,
-                        "y2": y2,
+                        "x1": x1_full,
+                        "y1": y1_full,
+                        "x2": x2_full,
+                        "y2": y2_full,
                     },
                     "bbox_xywh": {
-                        "cx": cx,
-                        "cy": cy,
-                        "w": w,
-                        "h": h,
+                        "cx": cx_full,
+                        "cy": cy_full,
+                        "w": w_full,
+                        "h": h_full,
                     },
                 }
 
@@ -451,7 +615,6 @@ class YoloDetectNode(Node):
     # GUI overlay
     # ============================================================
     def draw_gui_overlay(self, img):
-        # Nền mờ phía trên để đọc chữ dễ hơn
         cv2.rectangle(img, (0, 0), (img.shape[1], 80), (30, 30, 30), -1)
 
         if self.detect_period_sec <= 0.0:
@@ -502,7 +665,8 @@ class YoloDetectNode(Node):
             f"detect_fps={self.detect_fps:.1f}, "
             f"is_detecting={self.is_detecting}, "
             f"image_topic={self.image_topic}, "
-            f"publishers={self.count_publishers(self.image_topic)}"
+            f"roi_enabled={self.enable_roi_crop}, "
+            f"roi=({self.roi_x},{self.roi_y},{self.roi_width},{self.roi_height})"
         )
 
         if self.total_rx_frames == 0:

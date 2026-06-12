@@ -29,6 +29,9 @@ setup(
     entry_points={
         "console_scripts": [
             "yolo_detect_node = robot_vision_pipeline.yolo.yolo_detect_node:main",
+            "yolo_json_to_box_detection_node = robot_vision_pipeline.yolo_json_to_box_detection_node:main",
+            "pixel_to_base_mapper_node = robot_vision_pipeline.pose_estimation.pixel_to_base_mapper_node:main",
+            "vision_detection_marker_node = robot_vision_pipeline.vision_detection_marker_node:main",
             "aruco_detect_node = robot_vision_pipeline.aruco.aruco_detect_node:main",
             "vision_gui = robot_vision_pipeline.vision_gui.vision_gui_main:main",
             "vision_gui_astra = robot_vision_pipeline.vision_gui.vision_gui_astra:main",

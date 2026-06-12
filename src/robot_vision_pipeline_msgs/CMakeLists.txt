@@ -10,6 +10,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ArucoPose.msg"
   "msg/ArucoPoseArray.msg"
   "msg/Object.msg"
+  "msg/ObjectArray.msg"
   "msg/ObjectDetection.msg"
   DEPENDENCIES std_msgs geometry_msgs
 )

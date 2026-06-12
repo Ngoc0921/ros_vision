@@ -41,8 +41,6 @@ install(
   scripts/pixel_to_base_mapper_node
   scripts/vision_detection_marker_node
   scripts/realsense_depth_debug
-  scripts/tools/compute_pixel_to_base_homography
-  scripts/tools/test_pixel_to_base_homography
   scripts/aruco_detect_node
   scripts/vision_gui
   scripts/vision_gui_astra
