@@ -1,39 +1,23 @@
-# pixel_to_base_mapper_node — default parameters
 pixel_to_base_mapper_node:
   ros__parameters:
+    output_frame_id: "camera_color_optical_frame"
 
-    # Camera topics
     camera_info_topic: "/camera/camera/color/camera_info"
-    depth_topic: "/camera/camera/aligned_depth_to_color/image_raw"
-    base_debug_image_input_topic: "/camera/camera/color/image_raw"
+    color_image_topic: "/camera/camera/color/image_raw"
+    depth_image_topic: "/camera/camera/aligned_depth_to_color/image_raw"
 
-    # Target depth from aligned depth camera (robust median window)
-    target_depth_window_radius: 3
-    target_min_depth_m: 0.05
-    target_max_depth_m: 3.0
-    target_depth_outlier_threshold_m: 0.02
-    target_min_depth_samples: 3
+    wood_detection_topic: "/vision/wood_detection"
+    box_detection_topic: "/vision/box_detection"
 
-    # Wood Z/depth from aligned depth camera (robust median window)
-    wood_depth_window_radius: 2
-    wood_min_depth_m: 0.1
-    wood_max_depth_m: 2.0
-    wood_depth_outlier_threshold_m: 0.02
-    wood_min_depth_samples: 5
+    wood_objects_topic: "/vision/wood_objects"
+    box_objects_topic: "/vision/box_objects"
 
-    # Post-YOLO ROI refinement (HSV segmentation on color image):
-    # use YOLO bbox as ROI, segment low-saturation object pixels, morphology,
-    # then compute refined center + yaw from the largest contour/minAreaRect.
-    enable_roi_refinement: true
-    use_refined_center: true
-    use_refined_yaw_orientation: true
-    roi_mask_shrink: 0.92
-    roi_morph_kernel: 5
-    roi_min_contour_area: 300.0
-    roi_hsv_s_max: 80
-    roi_hsv_v_min: 35
-    roi_hsv_v_max: 245
+    default_box_size_x_m: 0.08
+    default_box_size_y_m: 0.08
+    default_box_size_z_m: 0.05
 
-    # Debug image and stale status.
+    fake_depth_m: 0.55
+    use_fake_depth_if_missing: false
+
     overlay_timeout_sec: 1.0
     stale_timeout_sec: 2.0

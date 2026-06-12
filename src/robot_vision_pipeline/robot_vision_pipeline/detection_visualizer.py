@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 
-from robot_vision_pipeline_msgs.msg import ObjectDetection
+from robot_vision_pipeline_msgs.msg import BoxDetection
 
 
 def _measure_text_block(
@@ -107,7 +107,7 @@ OVERLAY_TEXT_COLORS: Dict[str, Tuple[int, int, int]] = {
 
 def draw_all_detections(
     bgr: np.ndarray,
-    detections: List[ObjectDetection],
+    detections: List[BoxDetection],
     class_colors: Dict[str, Tuple[int, int, int]],
     *,
     physical_sizes_mm: Optional[List[Optional[Tuple[float, float, float]]]] = None,
@@ -121,7 +121,7 @@ def draw_all_detections(
 
     Args:
         bgr: Input BGR image.
-        detections: List of ObjectDetection messages.
+        detections: List of BoxDetection messages.
         class_colors: Mapping from class_name (lower) → (B, G, R) colour tuple.
         physical_sizes_mm: Optional parallel list of (x_mm, y_mm, z_mm) tuples for
             physical size in millimetres, one per detection. If None or an entry is

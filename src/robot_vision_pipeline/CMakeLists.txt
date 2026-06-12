@@ -16,16 +16,11 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ArucoPose.msg"
   "msg/ArucoPoseArray.msg"
-  "msg/BoxDetection.msg"
-  "msg/Box.msg"
   DEPENDENCIES std_msgs geometry_msgs
 )
 
 ament_export_dependencies(rosidl_default_runtime)
 
-# Do not use ament_python_install_package() here: it conflicts with
-# rosidl_generate_interfaces() for the same project name. Install Python
-# modules next to the generated msg package, same style as gp7_vision_pipeline.
 ament_get_python_install_dir(python_install_dir)
 install(
   DIRECTORY robot_vision_pipeline/
@@ -44,6 +39,7 @@ install(
   scripts/aruco_detect_node
   scripts/vision_gui
   scripts/vision_gui_astra
+  scripts/static_image_camera_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

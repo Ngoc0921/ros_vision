@@ -1,38 +1,21 @@
 yolo_detect_node:
   ros__parameters:
-
-    #image_topic: "/camera/color/image_raw"
     image_topic: "/camera/camera/color/image_raw"
     camera_info_topic: "/camera/camera/color/camera_info"
-
     annotated_image_topic: "/vision/yolo/image_annotated"
-
     detections_topic: "/vision/yolo/detections_json"
-
-    model_path: "/home/asus/ros_vision/src/robot_vision_pipeline/models/best_real.pt"
-    #model_path: "yolov8n.pt"
-
-    # CPU: "cpu"
-    # GPU: "0"
+    model_path: "/home/asus/ros_vision/src/robot_vision_pipeline/models/yolov8.pt"
     device: "cpu"
-
     conf_threshold: 0.35
     iou_threshold: 0.45
     imgsz: 256
     max_det: 20
     detect_period_sec: 0.0
-
     show_gui: false
     publish_annotated: true
     image_qos: "reliable"
-
-    class_filter: "wood"
-
+    class_filter: "wood,box"
     verbose_log: false
-
-    # ROI crop: crop a sub-region before YOLO inference.
-    # Coordinates are in the full image pixel space.
-    # Bounding boxes in the output JSON are always in full-image coordinates.
     enable_roi_crop: true
     roi_x: 100
     roi_y: 80

@@ -2,7 +2,7 @@
 <package format="3">
   <name>robot_vision_pipeline_msgs</name>
   <version>0.1.0</version>
-  <description>Custom messages for robot_vision_pipeline</description>
+  <description>Custom messages for robot_vision_pipeline: wood and box detection pipeline.</description>
 
   <maintainer email="minhquang@example.com">minhquang</maintainer>
   <license>MIT</license>

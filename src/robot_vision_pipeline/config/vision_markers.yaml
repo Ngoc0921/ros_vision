@@ -1,21 +1,15 @@
-# vision_detection_marker_node — default parameters
 vision_detection_marker_node:
   ros__parameters:
     marker_frame_id: "camera_color_optical_frame"
     marker_publish_rate_hz: 5.0
 
-    # Target marker (blue CYLINDER)
-    target_marker_diameter: 0.04
-    target_marker_height: 0.01
-    target_marker_z_is_bottom: false
+    wood_marker_size_x_m: 0.04
+    wood_marker_size_y_m: 0.04
+    wood_marker_size_z_m: 0.04
 
-    # Wood marker (yellow CUBE). Object.msg no longer carries size.
-    wood_marker_length: 0.08
-    wood_marker_width: 0.03
-    wood_marker_height: 0.02
-    wood_merge_distance_m: 0.03
+    box_marker_size_x_m: 0.08
+    box_marker_size_y_m: 0.08
+    box_marker_size_z_m: 0.05
 
-    # Staleness timeouts and confidence threshold
-    target_detection_timeout_sec: 1.0
     wood_detection_timeout_sec: 1.0
     wood_confidence_threshold: 0.5

@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, LogInfo
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -49,12 +49,12 @@ def generate_launch_description():
         executable="yolo_detect_node",
         name="yolo_detect_node",
         output="screen",
-       # prefix="/home/minhquang/venvs/ros_yolo/bin/python3",
         parameters=[
             yolo_param_file,
             {
                 "model_path_override": LaunchConfiguration("model_path"),
                 "image_topic_override": LaunchConfiguration("image_topic"),
+                "image_qos": "best_effort",
             },
         ],
     )
@@ -64,7 +64,10 @@ def generate_launch_description():
         executable="yolo_json_to_box_detection_node",
         name="yolo_json_to_box_detection_node",
         output="screen",
-        parameters=[adapter_param_file],
+        parameters=[
+            adapter_param_file,
+            {"use_fake_depth": False},
+        ],
     )
 
     mapper_node = Node(
@@ -73,7 +76,10 @@ def generate_launch_description():
         name="pixel_to_base_mapper_node",
         output="screen",
         condition=IfCondition(LaunchConfiguration("use_mapper")),
-        parameters=[mapper_param_file],
+        parameters=[
+            mapper_param_file,
+            {"use_fake_depth_if_missing": False},
+        ],
     )
 
     marker_node = Node(
@@ -86,6 +92,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        LogInfo(msg="[vision_full_pipeline] Starting full vision pipeline..."),
         use_camera_arg,
         use_mapper_arg,
         use_markers_arg,
